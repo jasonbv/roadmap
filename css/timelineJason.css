@@ -1,0 +1,16 @@
+body { font-family: 'Cabin', sans-serif; }
+
+.red { background-color : #FF4719; border : 0px solid #CC2900; }
+.yellow { background-color : #FFFF66;  border : 0px solid #B2B247;}
+.green { background-color : #33CC33; border : 0px solid #248F24; }
+.blue { background-color : #0099CC; border : 0px solid #006B8F; }
+
+
+.inactive { opacity: 0.5;  }
+
+#roadmapItemPopup { display : none; padding : 20px; }
+
+.redLightbox { background-color : #FFE6E6; border : 4px solid #CC2900; }
+.yellowLightbox { background-color : #FFFFE0;  border : 4px solid #B2B247;}
+.greenLightbox { background-color : #EBFAEB; border : 4px solid #248F24; }
+.blueLightbox { background-color : #E6F0F5; border : 4px solid #006B8F; }
