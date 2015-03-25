@@ -155,6 +155,17 @@ function onselect() {
 	  $('#productmanager').html(timelineItem.productmanager)
 	  $('#devmanager').html(timelineItem.devmanager)
 	  $('#jira').attr("href","https://bits.bazaarvoice.com/jira/browse/" + timelineItem.jira)
+	  
+	  
+	  storyQueryURL = "https://bits.bazaarvoice.com/jira/rest/api/2/search?jql=%22Epic%20Link%22%3D" + timelineItem.jira
+	  $.getJSON( storyQueryURL, function( data ) {
+	  
+	  console.log(data)
+	  
+	  })
+	  
+	  
+	  
 	  $('#roadmapItemPopup').bPopup();
     }
   }
