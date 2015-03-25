@@ -1,80 +1,79 @@
-//google.load("visualization", "1", {packages:["timeline"]});
 google.load("visualization", "1");
 google.setOnLoadCallback(drawChart);
+
 function drawChart() {
 	 
 
   var query = new google.visualization.Query(
       'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit?range=A2:Z22#gid=305973899https://docs.google.com/spreadsheet/ccc?key=0Atw2BTU52lOCdEZpUlVIdmxGOWZBR2tuLXhYN2dQTWc&usp=drive_web&gid=0#');
   query.send(handleQueryResponse);
+  
 }
 
 function handleQueryResponse(response) {
+
   if (response.isError()) {
     alert('Error in query: ' + response.getMessage() + ' ' + response.getDetailedMessage());
     return;
   }
 
+  //grab the roadpmap spreadsheet
   var data = response.getDataTable();
   
-  
-  
-  //var container = document.getElementById('timeline');
-  //var chart = new google.visualization.Timeline(container);
+  //create a new visualization table
   var dataTable = new google.visualization.DataTable();
   
-  dataTable.addColumn('datetime', 'start');
-  dataTable.addColumn('datetime', 'end');
-  dataTable.addColumn('string', 'content');
-  dataTable.addColumn('string', 'group');
-   dataTable.addColumn('string', 'className');
-    dataTable.addColumn('string', 'status');
-   dataTable.addColumn('string', 'jira');
-    dataTable.addColumn('number', 'confluence');
+	dataTable.addColumn('datetime', 'start');
+	dataTable.addColumn('datetime', 'end');
+	dataTable.addColumn('string', 'content');
+	dataTable.addColumn('string', 'group');
+	dataTable.addColumn('string', 'className');
+	dataTable.addColumn('string', 'status');
+	dataTable.addColumn('string', 'jira');
+	dataTable.addColumn('number', 'confluence');
 	dataTable.addColumn('string', 'programmanager');
-   dataTable.addColumn('string', 'productmanager');
-    dataTable.addColumn('string', 'devmanager');
+	dataTable.addColumn('string', 'productmanager');
+	dataTable.addColumn('string', 'devmanager');
 	dataTable.addColumn('string', 'schedule');
    
-  
+  //loop through each of the rows in the roadmap spreadsheet
   $(data.Lf).each(function(index,row){
   
-  //console.log(row.c[0])
-  console.log(index)
+		//grab the start date of the roadmap item
+		var startDate = new Date(row.c[3].f)
+		var startYear = startDate.getFullYear()
+		var startMonth = startDate.getMonth()
+		var startDay = startDate.getDate()
+  
+		//grab the end date of the roadmap item
+		var endDate = new Date(row.c[4].f)
+		var endYear = endDate.getFullYear()
+		var endMonth = endDate.getMonth()
+		var endDay = endDate.getDate()
   
   
-  var startDate = new Date(row.c[3].f)
-  var startYear = startDate.getFullYear()
-  var startMonth = startDate.getMonth()
-  var startDay = startDate.getDate()
   
-  var endDate = new Date(row.c[4].f)
-   var endYear = endDate.getFullYear()
-  var endMonth = endDate.getMonth()
-  var endDay = endDate.getDate()
   
-  console.log('got here')
+	roadmapItem = row.c[0].v.replaceAll(" ","_")
+	//console.log(roadmapItem)
+	var classString = (row.c[2].v == 'y') ? "active" : "inactive";
   
-  classString = ""
-  roadmapItem = row.c[0].v.replaceAll(" ","_")
-  console.log(roadmapItem)
   
-  if ( row.c[2].v == 'y' ) { classString = "active" } else { classString = "inactive" }
-  
-  switch(row.c[7].v) {
-    case "y":
-        classString += " yellow"
-        break;
-    case "r":
-         classString += " red"
-        break;
-	case "g":
-        classString += " green"
-        break;
-	case "b":
-        classString += " blue"
-        break;
-}
+	//set the color of the roadmap item
+	switch(row.c[7].v) {
+		case "y":
+			classString += " yellow"
+			break;
+		case "r":
+			 classString += " red"
+			break;
+		case "g":
+			classString += " green"
+			break;
+		case "b":
+			classString += " blue"
+			break;
+	}
   
   
   
