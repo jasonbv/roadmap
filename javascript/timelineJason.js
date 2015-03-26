@@ -35,9 +35,52 @@ function handleQueryResponse(response) {
 	dataTable.addColumn('string', 'productmanager');
 	dataTable.addColumn('string', 'devmanager');
 	dataTable.addColumn('string', 'schedule');
+	
+	
+	//loop through all tickets, create an array of them, and go get all the detail
+	//----------------------------------------------------------------------------
+	var ticketArray = []
+	
+	var roadmapItems = $(data.Lf)
+	//var rowz2 = $(data.Lf)
+	
+	roadmapItems.each(function(index2,row2){
+	
+	if ( row2.c[5].v.match("^PM-") ) { ticketArray.push(row2.c[5].v) }
+	
+	
+	})
+	
+	
+	var ticketString = ticketArray.join(",")
+	var storyObj = []
+		
+		storyQueryURL = "https://bv-roadmap.appspot.com/?ticket=" + ticketString
+	  $.getJSON( storyQueryURL, function( data ) {
+	  
+	  $(data.issues).each(function(issueIndex,issue){
+	  
+		storyObj.push({
+        'id': issue.fields.customfield_12620,
+        'storyId': issue.key,
+		'status': issue.fields.status.name,
+		'summary': issue.fields.summary
+    });
+		console.log(issue.fields.customfield_12620)
+	  
+	  })
+	  
+	  
+	//-----------------------------------------------------------------------------
+	//-----------------------------------------------------------------------------
+   
+   console.log("*******")
    
   //loop through each of the rows in the roadmap spreadsheet
-  $(data.Lf).each(function(index,row){
+  roadmapItems.each(function(index,row){
+  
+	console.log("*******")
+		console.log(index)
   
 		//grab the start date of the roadmap item
 		var startDate = new Date(row.c[3].f)
@@ -51,7 +94,8 @@ function handleQueryResponse(response) {
 		var endMonth = endDate.getMonth()
 		var endDay = endDate.getDate()
   
-  
+		
+		
   
   
 	roadmapItem = row.c[0].v.replaceAll(" ","_")
@@ -74,11 +118,41 @@ function handleQueryResponse(response) {
 			classString += " blue"
 			break;
 	}
+	
+	classString += " " + row.c[5].v
+	
+	roadmapItemString = row.c[0].v + "<div>"
+  
+  $(getObjects(storyObj, 'id', row.c[5].v)).each(function(storyIndex,story){
+  
+	var statusString = ""
+  
+	//set the color of the roadmap item
+	switch(story.status) {
+		case "Blocked":
+			statusString += "red " + story.status
+			break;
+		case "Closed":
+			 statusString += "blue " + story.status
+			break;
+		case "Open":
+			statusString += "yellow " + story.status
+			break;
+		default:
+			statusString += "green " + story.status
+			break;
+	}
   
   
+  
+	roadmapItemString += "<div class='block " + statusString + "'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + story.storyId + "'>&nbsp</a></div>"
+  
+  })
+  
+	roadmapItemString += "</div>"
   
   var schedule = row.c[3].f + " - " + row.c[4].f
-  dataTable.addRow([new Date(startYear, startMonth, startDay), new Date(endYear, endMonth, endDay),row.c[0].v,row.c[1].v,classString,row.c[7].v,row.c[5].v,row.c[6].v,row.c[11].v,row.c[8].v,row.c[9].v,schedule]);
+  dataTable.addRow([new Date(startYear, startMonth, startDay), new Date(endYear, endMonth, endDay),roadmapItemString,row.c[1].v,classString,row.c[7].v,row.c[5].v,row.c[6].v,row.c[11].v,row.c[8].v,row.c[9].v,schedule]);
   
   
   })
@@ -86,29 +160,21 @@ function handleQueryResponse(response) {
   
 	// specify options
         var options = {
-    // option groupOrder can be a property name or a sort function
-    // the sort function must compare two groups and return a value
-    //     > 0 when a > b
-    //     < 0 when a < b
-    //       0 when a == b
-    groupsOrder: function (a, b) {
+    
+			groupsOrder: function (a, b) {
 	
-		order = [ 'R&R','SEO','Q&A','Content','GSR','Tech' ];
-		console.log(a.content + " - " + b.content)
-		return order.indexOf(a.content) - order.indexOf(b.content)
+				order = [ 'R&R','SEO','Q&A','Content','GSR','Tech' ];
+				console.log(a.content + " - " + b.content)
+				return order.indexOf(a.content) - order.indexOf(b.content)
+				
+			},
+			
+		editable: false,
+		eventMargin : 2,
+		eventMarginAxis : 10,
+		axisOnTop : true
 		
-		
-	
-
-
-	  
-	  
-    },
-    editable: false,
-	eventMargin : 2,
-	eventMarginAxis : 10,
-	axisOnTop : true
-  };
+		};
 
         // Instantiate our timeline object.
         timeline = new links.Timeline(document.getElementById('timeline'));
@@ -116,6 +182,12 @@ function handleQueryResponse(response) {
 
         // Draw our timeline with the created data and options
         timeline.draw(dataTable, options);
+		
+		
+		
+		console.log(ticketString)
+		
+	})
   
   
   //var chart = new google.visualization.ColumnChart(document.getElementById('columnchart'));
@@ -156,17 +228,40 @@ function onselect() {
 	  $('#devmanager').html(timelineItem.devmanager)
 	  $('#jira').attr("href","https://bits.bazaarvoice.com/jira/browse/" + timelineItem.jira)
 	  
+	  //console.log($(sel).attr("class"))
 	  
-	  storyQueryURL = "https://bits.bazaarvoice.com/jira/rest/api/2/search?jql=%22Epic%20Link%22%3D" + timelineItem.jira
+	  /*
+	  $("div#epicDetail").remove()
+	  
+	  storyQueryURL = "https://bv-roadmap.appspot.com/?ticket=" + timelineItem.jira
 	  $.getJSON( storyQueryURL, function( data ) {
 	  
-	  console.log(data)
+	  $(data.issues).each(function(issueIndex,issue){
+	  
+		console.log(issue.customfield_12620)
 	  
 	  })
 	  
+	  var detailString = "<div id='epicDetail'>"
+	  
+	  $(data.issues).each(function(index,issue){
+	  
+		detailString += "<span>" + index + "</span>"
+	  
+	  })
+	  
+	  detailString += "</div>"
 	  
 	  
-	  $('#roadmapItemPopup').bPopup();
+	  //$(timelineItem).append("<h5>sdlfkjdsfldsjflkj</h5>")
+	  
+	  $("div.timeline-event-selected").append(detailString)
+	  
+	  })
+	  
+	  */
+	  
+	  //$('#roadmapItemPopup').bPopup();
     }
   }
 }
@@ -186,3 +281,17 @@ function groupsOrder (a, b) {
     }
     return 0;
 };
+
+
+function getObjects(obj, key, val) {
+    var objects = [];
+    for (var i in obj) {
+        if (!obj.hasOwnProperty(i)) continue;
+        if (typeof obj[i] == 'object') {
+            objects = objects.concat(getObjects(obj[i], key, val));
+        } else if (i == key && obj[key] == val) {
+            objects.push(obj);
+        }
+    }
+    return objects;
+}
