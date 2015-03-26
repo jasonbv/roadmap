@@ -63,7 +63,9 @@ function handleQueryResponse(response) {
 		storyObj.push({
         'id': issue.fields.customfield_12620,
         'storyId': issue.key,
-		'status': issue.fields.status.name,
+		'status': issue.fields.status.name.replaceAll(" ","_"),
+		'lastupdated': issue.fields.updated,
+		'assigned': issue.fields.assignee.displayName,
 		'summary': issue.fields.summary
     });
 		console.log(issue.fields.customfield_12620)
@@ -121,7 +123,12 @@ function handleQueryResponse(response) {
 	
 	classString += " " + row.c[5].v
 	
-	roadmapItemString = row.c[0].v + "<div>"
+	
+	
+	var totalTickets = 0
+	var completedTickets = 0
+	var roadmapItemString = ""
+	 var completionPercentage = 0
   
   $(getObjects(storyObj, 'id', row.c[5].v)).each(function(storyIndex,story){
   
@@ -129,30 +136,73 @@ function handleQueryResponse(response) {
   
 	//set the color of the roadmap item
 	switch(story.status) {
+		case "Code_Reviewing":
+			statusString += "yellow " + story.status
+			totalTickets++
+			break;
 		case "Blocked":
 			statusString += "red " + story.status
+			totalTickets++
+			break;
+		case "Deferred":
+			statusString += "red " + story.status
+			totalTickets++
 			break;
 		case "Closed":
 			 statusString += "blue " + story.status
+			 totalTickets++
+			 completedTickets++
+			break;
+		case "Ready_For_Production":
+			 statusString += "blue " + story.status
+			 totalTickets++
+			 completedTickets++
+			break;
+		case "Scheduled_for_Release":
+			 statusString += "blue " + story.status
+			 totalTickets++
+			 completedTickets++
 			break;
 		case "Open":
 			statusString += "yellow " + story.status
+			totalTickets++
 			break;
 		default:
+			totalTickets++
 			statusString += "green " + story.status
 			break;
 	}
   
   
+ 
+	
+
   
-	roadmapItemString += "<div class='block " + statusString + "'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + story.storyId + "'>&nbsp</a></div>"
+  var todaysDate = new Date()
+  var lastUpdatedDate = new Date(story.lastupdated)
+  var oneDay = 24*60*60*1000; // hours*minutes*seconds*milliseconds
+	var diffDays = Math.round(Math.abs((todaysDate.getTime() - lastUpdatedDate.getTime())/(oneDay)));
   
+	roadmapItemString += "<a class='storyLink' target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + story.storyId + "'><div id='" + story.storyId + "' class='block " + statusString + "'>"
+	roadmapItemString += "<span class='" + row.c[5].v + "_story hidden storyItem' id='" + story.storyId + "_details'>" + story.assigned + " - " + diffDays + "</span></div></a>"
   })
   
+  if ( totalTickets != 0 ) { 
+  
+	completionPercentage = Math.round(( completedTickets / totalTickets ) * 100) + "%" } 
+	
+	else {
+	
+	completionPercentage = "0%"
+	
+	}
+  
 	roadmapItemString += "</div>"
+	
+	finalRoadmapItemString = row.c[0].v + " - " + completionPercentage + "<div>" + roadmapItemString
   
   var schedule = row.c[3].f + " - " + row.c[4].f
-  dataTable.addRow([new Date(startYear, startMonth, startDay), new Date(endYear, endMonth, endDay),roadmapItemString,row.c[1].v,classString,row.c[7].v,row.c[5].v,row.c[6].v,row.c[11].v,row.c[8].v,row.c[9].v,schedule]);
+  dataTable.addRow([new Date(startYear, startMonth, startDay), new Date(endYear, endMonth, endDay),finalRoadmapItemString,row.c[1].v,classString,row.c[7].v,row.c[5].v,row.c[6].v,row.c[11].v,row.c[8].v,row.c[9].v,schedule]);
   
   
   })
@@ -171,7 +221,7 @@ function handleQueryResponse(response) {
 			
 		editable: false,
 		eventMargin : 2,
-		eventMarginAxis : 10,
+		eventMarginAxis : 0,
 		axisOnTop : true
 		
 		};
@@ -262,6 +312,22 @@ function onselect() {
 	  */
 	  
 	  //$('#roadmapItemPopup').bPopup();
+	  
+	  console.log("div." + timelineItem.jira + " .block")
+	  
+	  var oldStoryItems = $(".block")
+	  var oldStoryItemsDetail = $(".storyItem")
+	  oldStoryItems.css('float','left')
+	  oldStoryItemsDetail.css('display','none')
+	  
+	  var storyItems = $("div." + timelineItem.jira + " .block")
+	  var storyItemsDetail = $("span." + timelineItem.jira + "_story")
+	  
+	  storyItems.css('float','none')
+	  //storyItems.css('width','10px')
+	  storyItemsDetail.show()
+	  
+	  
     }
   }
 }

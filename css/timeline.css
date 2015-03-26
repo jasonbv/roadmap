@@ -53,6 +53,8 @@ div.timeline-event {
     box-sizing: border-box;
     color: #1a1a1a;
     display: inline-block;
+	margin-top : 3px;
+	margin-bottom : 3px; 
 	
 	
 }
