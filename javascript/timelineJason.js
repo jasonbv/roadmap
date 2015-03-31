@@ -1,3 +1,25 @@
+var numOfRoadmapItems = 22
+
+var testJiraTicket = "POPS-203"
+
+var dataRoadmapItemIndex = 0
+var dataCategoryIndex = 1
+var dataActive = 2
+var dataStartDate = 3
+var dataEndDate = 4
+var dataJira = 5
+var dataConfluence = 6
+var dataStatus = 7
+var dataProdMgr = 8
+var dataEngMgr = 9
+var dataEngLead = 10
+var dataProgMgr = 11
+var dataDocLead = 12
+var dataProgJira = 5
+
+var pmTicketString = ""
+
+
 //load up a google visualization, we about to get busy
 google.load("visualization", "1");
 google.setOnLoadCallback(grabRoadmapData);
@@ -8,7 +30,7 @@ function grabRoadmapData() {
 	 
 	//go and grab the raw data from the roadmap spreadsheet
 	var query = new google.visualization.Query(
-      'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit?range=A2:Z22#gid=305973899https://docs.google.com/spreadsheet/ccc?key=0Atw2BTU52lOCdEZpUlVIdmxGOWZBR2tuLXhYN2dQTWc&usp=drive_web&gid=0#');
+      'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit?range=A2:Z' + numOfRoadmapItems + '#gid=305973899');
 	query.send(buildRoadmap);
   
 }
@@ -41,12 +63,14 @@ function buildRoadmap(response) {
 	dataTable.addColumn('string', 'productmanager');
 	dataTable.addColumn('string', 'devmanager');
 	dataTable.addColumn('string', 'schedule');
+	dataTable.addColumn('string', 'dataProgJira');
 	
 	
 	//loop through all tickets, create an array of them, and go get all the detail
 	//----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
 	var ticketArray = []
+	var pmTicketArray = []
 
 	var roadmapItems = $(data.Lf)
 	
@@ -55,7 +79,9 @@ function buildRoadmap(response) {
 	roadmapItems.each(function(index2,row2){
 	
 		//if we have linked to a JIRA ticket in the spreadsheet, push it into the array for our API call
-		if ( row2.c[5].v.match("^PM-") ) { ticketArray.push(row2.c[5].v) }
+		if ( row2.c[dataJira].v.match("^PM-") ) { ticketArray.push(row2.c[dataJira].v); pmTicketArray.push(row2.c[dataProgJira].v) }
+		//pmTicketArray.push(row2.c[dataProgJira].v)
+		
 	
 	})
 	//END - Loop through each roadmap item
@@ -64,11 +90,38 @@ function buildRoadmap(response) {
 	
 	//join all the JIRA tickets we have links to
 	var ticketString = ticketArray.join(",")
+	var pmTicketString = pmTicketArray.join(",")
 	var storyQueryURL = "https://bv-roadmap.appspot.com/?ticket=" + ticketString
 	var storyObj = []
 	
-	//go and grab all of the stories for each of the epics
-	$.getJSON( storyQueryURL, function( data ) {
+	
+	
+	
+	
+	
+	//========================================
+	pmTicketString2 = "POPS-203"
+	console.log(pmTicketString)
+	var commentQueryURL = "https://bv-roadmap.appspot.com/getTickets/?ticket=" + pmTicketString2
+	$.getJSON( commentQueryURL, function( data ) {
+		console.log(data)
+		
+	//========================================
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	  //go and grab all of the stories for each of the epics
+	  $.getJSON( storyQueryURL, function( data ) {
 	  
 	  
 		//loop through each of the stories and push it into a big all the relevant data into a object
@@ -108,23 +161,23 @@ function buildRoadmap(response) {
 	
 		
 		//grab the start date of the roadmap item
-		var startDate = new Date(row.c[3].f)
+		var startDate = new Date(row.c[dataStartDate].f)
 		var startYear = startDate.getFullYear()
 		var startMonth = startDate.getMonth()
 		var startDay = startDate.getDate()
 
 		//grab the end date of the roadmap item
-		var endDate = new Date(row.c[4].f)
+		var endDate = new Date(row.c[dataEndDate].f)
 		var endYear = endDate.getFullYear()
 		var endMonth = endDate.getMonth()
 		var endDay = endDate.getDate()
   
 		//determine if this roadmap item is currently acitve and start building out the classes to style accordingly
-		var classString = (row.c[2].v == 'y') ? "active" : "inactive";
+		var classString = (row.c[dataActive].v == 'y') ? "active" : "inactive";
   
   
 		//set the color of the roadmap item based on the status
-		switch(row.c[7].v) {
+		switch(row.c[dataStatus].v) {
 			case "y":
 				classString += " yellow"
 				break;
@@ -140,7 +193,7 @@ function buildRoadmap(response) {
 		} //END - set the color
 	
 		//also include the JIRA ticket number so we can grab it when we click it
-		classString += " " + row.c[5].v
+		classString += " " + row.c[dataJira].v
 	
 	
 	
@@ -153,7 +206,7 @@ function buildRoadmap(response) {
 		//go and grab the stories for this particular epic
 		//------------------------------------------------------------------------
 		//------------------------------------------------------------------------
-		$(getObjects(storyObj, 'id', row.c[5].v)).each(function(storyIndex,story){
+		$(getObjects(storyObj, 'id', row.c[dataJira].v)).each(function(storyIndex,story){
   
 			var statusString = ""
   
@@ -225,13 +278,26 @@ function buildRoadmap(response) {
 		}
   
 	
-		finalRoadmapItemString = "<h3 class='roadmapItemName'>" + row.c[0].v + " - " + completionPercentage + "</h3><div>" + roadmapItemString + "</div>"
+		finalRoadmapItemString = "<h3 class='roadmapItemName'>" + row.c[0].v + " - " + completionPercentage + "</h3><div class='stories'>" + roadmapItemString + "</div>"
   
   
 		var schedule = row.c[3].f + " - " + row.c[4].f
 		
 		//go and add a bunch of stuff to the timeline item in the visualization
-		dataTable.addRow([new Date(startYear, startMonth, startDay), new Date(endYear, endMonth, endDay),finalRoadmapItemString,row.c[1].v,classString,row.c[7].v,row.c[5].v,row.c[6].v,row.c[11].v,row.c[8].v,row.c[9].v,schedule]);
+		dataTable.addRow([
+			new Date(startYear, startMonth, startDay), 
+			new Date(endYear, endMonth, endDay),
+			finalRoadmapItemString,row.c[dataCategoryIndex].v,
+			classString,
+			row.c[dataStatus].v,
+			row.c[dataJira].v,
+			row.c[dataConfluence].v,
+			row.c[dataProgMgr].v,
+			row.c[dataProdMgr].v,
+			row.c[dataEngMgr].v,
+			schedule,
+			row.c[dataProgJira].v
+		]);
   
   
 		
@@ -269,11 +335,13 @@ function buildRoadmap(response) {
         timeline.draw(dataTable, options);
 		$('.assignee').click(showWork)
 		
-		
+		grabComments(pmTicketString)
 		
 		
 	}) //END of our ajax call grabbing all the stories
-  
+	
+	
+  }) //END on the ajax call to grab the comments for the epics
   
   
 } //END of our giant stupid ass function
@@ -405,6 +473,14 @@ function setColor(storyStatus) {
 			return "green" 
 			break;
 	}
+
+
+}
+
+
+function grabComments(pmTicketString) {
+
+
 
 
 }

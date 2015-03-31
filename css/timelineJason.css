@@ -1,5 +1,7 @@
 body { font-family: 'Lato', sans-serif; }
 
+/* .stories { display : none; } */
+
 .red { background-color : #FF4719; border : 0px solid #CC2900; }
 .yellow { background-color : #FFFF66;  border : 0px solid #B2B247;}
 .green { background-color : #33CC33; border : 0px solid #248F24; }
