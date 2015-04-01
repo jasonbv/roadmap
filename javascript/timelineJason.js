@@ -15,7 +15,7 @@ var dataEngMgr = 9
 var dataEngLead = 10
 var dataProgMgr = 11
 var dataDocLead = 12
-var dataProgJira = 5
+var dataProgJira = 13
 
 var pmTicketString = ""
 
@@ -79,8 +79,8 @@ function buildRoadmap(response) {
 	roadmapItems.each(function(index2,row2){
 	
 		//if we have linked to a JIRA ticket in the spreadsheet, push it into the array for our API call
-		if ( row2.c[dataJira].v.match("^PM-") ) { ticketArray.push(row2.c[dataJira].v); pmTicketArray.push(row2.c[dataProgJira].v) }
-		//pmTicketArray.push(row2.c[dataProgJira].v)
+		if ( row2.c[dataJira].v.match("^PM-") ) { ticketArray.push(row2.c[dataJira].v) }
+		pmTicketArray.push(row2.c[dataProgJira].v)
 		
 	
 	})
@@ -93,6 +93,7 @@ function buildRoadmap(response) {
 	var pmTicketString = pmTicketArray.join(",")
 	var storyQueryURL = "https://bv-roadmap.appspot.com/?ticket=" + ticketString
 	var storyObj = []
+	var epicObj = []
 	
 	
 	
@@ -102,13 +103,45 @@ function buildRoadmap(response) {
 	//========================================
 	pmTicketString2 = "POPS-203"
 	console.log(pmTicketString)
-	var commentQueryURL = "https://bv-roadmap.appspot.com/getTickets/?ticket=" + pmTicketString2
-	$.getJSON( commentQueryURL, function( data ) {
+	var commentQueryURL = "https://bv-roadmap.appspot.com/getTickets/?ticket=" + pmTicketString
+	$.getJSON( commentQueryURL, function( epicData ) {
 		console.log(data)
 		
 	//========================================
 	
+		var commentString = ""
+		var authorString = ""
 	
+		$(epicData.issues).each(function(epicIndex,epic){
+		
+			console.log(epic.fields.comment.comments.length)
+			console.log("********")
+			if ( epic.fields.comment.comments.length > 0 ) { 
+			
+			commentString = epic.fields.comment.comments[epic.fields.comment.comments.length-1].body + " - " 
+			authorString =  epic.fields.comment.comments[epic.fields.comment.comments.length-1].updateAuthor.displayName
+			
+			} else {
+			
+			commentString = "No comments"
+			authorString = ""
+			
+			}
+		
+		
+			epicObj.push({
+				
+				'epicId': epic.key,
+				'lastComment': commentString,
+				'commentAuthor' : authorString
+				//'statusColor': setColor(issue.fields.status.name.replaceAll(" ","_")),
+				//'lastupdated': issue.fields.updated,
+				//'assigned': issue.fields.assignee.displayName,
+				//'summary': issue.fields.summary
+			});
+		
+		
+		})
 	
 	
 	
@@ -165,15 +198,22 @@ function buildRoadmap(response) {
 		var startYear = startDate.getFullYear()
 		var startMonth = startDate.getMonth()
 		var startDay = startDate.getDate()
+		
+		var startSchedule = startMonth + "/" + startDay + "/" + startYear.toString().substr(2,2);
+		
 
 		//grab the end date of the roadmap item
 		var endDate = new Date(row.c[dataEndDate].f)
 		var endYear = endDate.getFullYear()
 		var endMonth = endDate.getMonth()
 		var endDay = endDate.getDate()
+		
+		var endSchedule = endMonth + "/" + endDay + "/" + endYear.toString().substr(2,2);
   
 		//determine if this roadmap item is currently acitve and start building out the classes to style accordingly
-		var classString = (row.c[dataActive].v == 'y') ? "active" : "inactive";
+		var classString = row.c[dataActive].v + " sameColor"
+		
+		
   
   
 		//set the color of the roadmap item based on the status
@@ -278,10 +318,26 @@ function buildRoadmap(response) {
 		}
   
 	
-		finalRoadmapItemString = "<h3 class='roadmapItemName'>" + row.c[0].v + " - " + completionPercentage + "</h3><div class='stories'>" + roadmapItemString + "</div>"
+		finalRoadmapItemString = "<div class='roadmapItem'><h2 class='roadmapItemName'>" + row.c[dataRoadmapItemIndex].v + "</h2></div>"
+		var schedule = startSchedule + " - " + endSchedule
+		$(getObjects(epicObj, 'epicId', row.c[dataProgJira].v)).each(function(epicIndex,epic){
+		
+		finalRoadmapItemString += "<div class='hidden detail'>"
+		finalRoadmapItemString += "<table>"
+		finalRoadmapItemString += "<tr><td class='timeline' colspan=3>" + schedule +  "</td></tr>"
+		finalRoadmapItemString += "<tr><td class='label'>Prod Mgr:</td><td class='field'>" + row.c[dataProdMgr].v + "</td><td class='percent' rowspan=5>" + completionPercentage + "</td></tr>"
+		finalRoadmapItemString += "<tr><td class='label'>Eng Mgr:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
+		finalRoadmapItemString += "<tr><td class='label'>Tech Lead:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
+		finalRoadmapItemString += "<tr><td class='label'>Doc Lead:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
+		finalRoadmapItemString += "<tr><td class='label'>Prog Mgr:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
+		finalRoadmapItemString += "</table>"
+		finalRoadmapItemString += "<hr/>"
+		finalRoadmapItemString += "<p class='small'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + row.c[dataProgJira].v + "'>" + epic.lastComment + epic.commentAuthor + "</a></p>"
+		
+		})
   
-  
-		var schedule = row.c[3].f + " - " + row.c[4].f
+		finalRoadmapItemString += "<div class='stories'>" + roadmapItemString + "</div>"
+		finalRoadmapItemString += "</div>"
 		
 		//go and add a bunch of stuff to the timeline item in the visualization
 		dataTable.addRow([
@@ -343,6 +399,39 @@ function buildRoadmap(response) {
 	
   }) //END on the ajax call to grab the comments for the epics
   
+  $('#status').click(function(){
+  
+	$('div.detail').hide()
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	$('div.sameColor').removeClass('sameColor')
+  
+  })
+  
+
+$('#summary').click(function(){
+  
+	$('div.detail').hide()
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	$('div.timeline-event').addClass('sameColor')
+  
+  })  
+  
+  
+
+$('#detail').click(function(){
+  
+	$('div.detail').show().removeClass('hidden')
+	//setTimeout(function(){ timeline.redraw() }, 3000);
+	//$('div#timeline').hide()
+	//setTimeout(function(){ $('div#timeline').show() }, 3000);
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	
+  
+  })  
+  
   
 } //END of our giant stupid ass function
 
@@ -377,14 +466,14 @@ function onselect() {
 		}
 	  
 	  //go and set a bunch of values on the popup
-	  $('#roadmapItemPopup').removeClass()
-	  $('#roadmapItemPopup').addClass(lightboxClass)
-	  $('#schedule').html(timelineItem.schedule)
-	  $('#roadmapItem').html(timelineItem.content)
-	  $('#programmanager').html(timelineItem.programmanager)
-	  $('#productmanager').html(timelineItem.productmanager)
-	  $('#devmanager').html(timelineItem.devmanager)
-	  $('#jira').attr("href","https://bits.bazaarvoice.com/jira/browse/" + timelineItem.jira)
+	  //$('#roadmapItemPopup').removeClass()
+	  //$('#roadmapItemPopup').addClass(lightboxClass)
+	  //$('#schedule').html(timelineItem.schedule)
+	  //$('#roadmapItem').html(timelineItem.content)
+	  //$('#programmanager').html(timelineItem.programmanager)
+	  //$('#productmanager').html(timelineItem.productmanager)
+	  //$('#devmanager').html(timelineItem.devmanager)
+	  //$('#jira').attr("href","https://bits.bazaarvoice.com/jira/browse/" + timelineItem.jira)
 	  
 	  
 	  //go and grab all the story items and compress them and hide the detail
@@ -400,6 +489,9 @@ function onselect() {
 	  //stack then and show the detail
 	  storyItems.css('float','none')
 	  storyItemsDetail.show()
+	  
+	  timeline.zoom(0.1)
+		timeline.zoom(-.1)
 	  
 	  
     }

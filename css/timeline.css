@@ -54,7 +54,8 @@ div.timeline-event {
     color: #1a1a1a;
     display: inline-block;
 	margin-top : 3px;
-	margin-bottom : 3px; 
+	margin-bottom : 5px; 
+	word-wrap: break-word;
 	
 	
 }
@@ -120,7 +121,7 @@ div.timeline-event-line {
 div.timeline-event-content {
     margin: 10px 8px;
     overflow: hidden;
-    white-space: nowrap;
+    /* white-space: nowrap; */
 }
 
 div.timeline-groups-axis {
