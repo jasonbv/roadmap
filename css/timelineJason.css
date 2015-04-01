@@ -1,4 +1,4 @@
-body { font-family: 'Lato', sans-serif; }
+body { font-family: 'Open Sans', sans-serif;, sans-serif; }
 
 /* .stories { display : none; } */
 
@@ -9,6 +9,11 @@ body { font-family: 'Lato', sans-serif; }
 
 a { text-decoration : none; }
 
+#timeline { margin-top : 14px; }
+
+#header { margin-top : 10px; margin-left : 10px; }
+#heading { margin-right : 20px; font-size : 30px; }
+
 hr {
     border: 0;
     height: 1px;
@@ -18,18 +23,35 @@ hr {
     background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
 }
 
-div#timeline div.sameColor{ background-color : red }
+div#timeline div.sameColor{ background-color : #739fff; }
 
 .percent {  opacity: 0.75; text-align : center; border : 1px solid #333; font-size : 40px; }
 
 tr { vertical-align : middle; }
 
-.horizon { opacity: 0.75; 
+.drill { display : none; }
+
+
+ 
+.currentOn { opacity: 1.0; 
+
+
+
+
+}
+
+
+div#header a.selected { text-decoration : none; }
+a.drill { text-decoration : underline; }
+
+.storyBlock { margin-top : 3px; margin-bottom : 3px; }
+
+.horizonOn { opacity: 0.75; 
 
 background-image: -webkit-gradient(linear, left top, right bottom, from(rgba(255, 255, 255, 0)), to(rgba(255, 255, 255, .4)));
 
  }
-.future { opacity: 0.35; 
+.futureOn { opacity: 0.35; 
 
 background-image: -webkit-gradient(linear, right top, left bottom, from(rgba(255, 255, 255, 1)), to(rgba(0, 0, 0, .1)));
 
@@ -38,7 +60,7 @@ background-image: -webkit-gradient(linear, right top, left bottom, from(rgba(255
 
 #logo { position : absolute; top : 20px; left : 20px; z-index : -100; }
 
-img { vertical-align:middle; }
+img { vertical-align:bottom; margin-bottom : 7px; margin-left: -3px; }
 
 .jiraLink {  font-size : 30px; }
 
@@ -58,10 +80,10 @@ img { vertical-align:middle; }
 
 #workPopup{ display : none;  background-color : #E6F0F5; border : 4px solid #006B8F; padding : 10px; }
 
-.block { width : 10px; height : 15px; float : left; border : 1px solid #000; padding : 0px 4px; margin-left : 5px; margin-top : 1px; margin-bottom : 3px; }
+.block { width : 10px; height : 15px; float : left; border : 1px solid #000; padding : 0px 10px; margin-left : 5px; margin-top : 1px; margin-bottom : 3px; }
 .block a { text-decoration : none; }
 
-.timeline { padding-bottom : 8px; font-family: 'Lato'; font-size : 16px; text-align : center; }
+.timeline { padding-bottom : 8px; font-family: 'Open Sans', sans-serif; font-size : 16px; text-align : center; }
 
 
 
@@ -86,7 +108,7 @@ div.stories { overflow: hidden;  }
   font-family: 'Cabin';
   font-style: normal;
   font-weight: 600;
-  src: local('Cabin SemiBold'), local('Cabin-SemiBold'), url(http://fonts.gstatic.com/s/cabin/v7/pOvYyCQeTTtw6RxdlpulSvesZW2xOQ-xsNqO47m55DA.woff2) format('woff2');
+  src: local('Cabin SemiBold'), local('Cabin-SemiBold'), url(//fonts.gstatic.com/s/cabin/v7/pOvYyCQeTTtw6RxdlpulSvesZW2xOQ-xsNqO47m55DA.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }
 
@@ -95,7 +117,7 @@ div.stories { overflow: hidden;  }
   font-family: 'Lato';
   font-style: normal;
   font-weight: 400;
-  src: local('Lato Regular'), local('Lato-Regular'), url(http://fonts.gstatic.com/s/lato/v11/UyBMtLsHKBKXelqf4x7VRQ.woff2) format('woff2');
+  src: local('Lato Regular'), local('Lato-Regular'), url(//fonts.gstatic.com/s/lato/v11/UyBMtLsHKBKXelqf4x7VRQ.woff2) format('woff2');
   unicode-range: U+0100-024F, U+1E00-1EFF, U+20A0-20AB, U+20AD-20CF, U+2C60-2C7F, U+A720-A7FF;
 }
 /* latin */
@@ -103,6 +125,6 @@ div.stories { overflow: hidden;  }
   font-family: 'Lato';
   font-style: normal;
   font-weight: 400;
-  src: local('Lato Regular'), local('Lato-Regular'), url(http://fonts.gstatic.com/s/lato/v11/1YwB1sO8YE1Lyjf12WNiUA.woff2) format('woff2');
+  src: local('Lato Regular'), local('Lato-Regular'), url(//fonts.gstatic.com/s/lato/v11/1YwB1sO8YE1Lyjf12WNiUA.woff2) format('woff2');
   unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02C6, U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2212, U+2215, U+E0FF, U+EFFD, U+F000;
 }

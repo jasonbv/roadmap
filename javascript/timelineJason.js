@@ -19,6 +19,19 @@ var dataProgJira = 13
 
 var pmTicketString = ""
 
+ WebFontConfig = {
+    google: { families: [ 'Open+Sans::latin' ] }
+  };
+  (function() {
+    var wf = document.createElement('script');
+    wf.src = ('https:' == document.location.protocol ? 'https' : 'http') +
+      '://ajax.googleapis.com/ajax/libs/webfont/1/webfont.js';
+    wf.type = 'text/javascript';
+    wf.async = 'true';
+    var s = document.getElementsByTagName('script')[0];
+    s.parentNode.insertBefore(wf, s);
+  })(); 
+
 
 //load up a google visualization, we about to get busy
 google.load("visualization", "1");
@@ -211,8 +224,8 @@ function buildRoadmap(response) {
 		var endSchedule = endMonth + "/" + endDay + "/" + endYear.toString().substr(2,2);
   
 		//determine if this roadmap item is currently acitve and start building out the classes to style accordingly
+		//var classString = row.c[dataActive].v + " " + row.c[dataActive].v + "On sameColor"
 		var classString = row.c[dataActive].v + " sameColor"
-		
 		
   
   
@@ -300,8 +313,8 @@ function buildRoadmap(response) {
 			var diffDays = Math.round(Math.abs((todaysDate.getTime() - lastUpdatedDate.getTime())/(oneDay)));
   
 			//go and build out the HTML for the story
-			roadmapItemString += "<div><a class='storyLink' target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + story.storyId + "'><span id='" + story.storyId + "' class='block " + statusString + "'></span></a>"
-			roadmapItemString += "<span class='" + row.c[5].v + "_story hidden storyItem' id='" + story.storyId + "_details'>" + story.storyId.split('-')[1] + " - <a class='assignee' href='javascript:;'>" + story.assigned + "</a> - " + diffDays + "</span></div>"
+			roadmapItemString += "<div class='storyBlock'><a href='javascript:;' class='storyLink'><span id='" + story.storyId + "' class='block " + statusString + "'></span></a>"
+			roadmapItemString += "<span class='" + row.c[5].v + "_story hidden storyItem' id='" + story.storyId + "_details'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + story.storyId + "'>" + story.storyId.split('-')[1] + "</a> - <a class='assignee' href='javascript:;'>" + story.assigned + "</a> - " + diffDays + "</span></div>"
 
   
 		})
@@ -311,19 +324,22 @@ function buildRoadmap(response) {
   
   
 		//finish the math on the completion percentage
+		if ( row.c[dataStatus].v == "b" ) { completionPercentage = "100%" } else {
 		if ( totalTickets != 0 ) { 
 			completionPercentage = Math.round(( completedTickets / totalTickets ) * 100) + "%" } 
 		else {
 			completionPercentage = "0%"
 		}
+		}
   
+		
 	
-		finalRoadmapItemString = "<div class='roadmapItem'><h2 class='roadmapItemName'>" + row.c[dataRoadmapItemIndex].v + "</h2></div>"
+		finalRoadmapItemString = "<div class='roadmapItem'><h2 class='roadmapItemName'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + row.c[dataJira].v + "'>" + row.c[dataRoadmapItemIndex].v + "</a></h2></div>"
 		var schedule = startSchedule + " - " + endSchedule
 		$(getObjects(epicObj, 'epicId', row.c[dataProgJira].v)).each(function(epicIndex,epic){
 		
-		finalRoadmapItemString += "<div class='hidden detail'>"
-		finalRoadmapItemString += "<table>"
+		//finalRoadmapItemString += "<div class='hidden detail'>"
+		finalRoadmapItemString += "<table class='hidden detail'>"
 		finalRoadmapItemString += "<tr><td class='timeline' colspan=3>" + schedule +  "</td></tr>"
 		finalRoadmapItemString += "<tr><td class='label'>Prod Mgr:</td><td class='field'>" + row.c[dataProdMgr].v + "</td><td class='percent' rowspan=5>" + completionPercentage + "</td></tr>"
 		finalRoadmapItemString += "<tr><td class='label'>Eng Mgr:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
@@ -331,13 +347,13 @@ function buildRoadmap(response) {
 		finalRoadmapItemString += "<tr><td class='label'>Doc Lead:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
 		finalRoadmapItemString += "<tr><td class='label'>Prog Mgr:</td><td class='field'>" + row.c[dataProgMgr].v + "</td></tr>"
 		finalRoadmapItemString += "</table>"
-		finalRoadmapItemString += "<hr/>"
-		finalRoadmapItemString += "<p class='small'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + row.c[dataProgJira].v + "'>" + epic.lastComment + epic.commentAuthor + "</a></p>"
+		finalRoadmapItemString += "<hr class='hidden divider' />"
+		finalRoadmapItemString += "<p class='comments hidden small'><a target='_blank' href='https://bits.bazaarvoice.com/jira/browse/" + row.c[dataProgJira].v + "'>" + epic.lastComment + epic.commentAuthor + "</a></p>"
 		
 		})
   
-		finalRoadmapItemString += "<div class='stories'>" + roadmapItemString + "</div>"
-		finalRoadmapItemString += "</div>"
+		finalRoadmapItemString += "<div class='hidden stories'>" + roadmapItemString + "</div>"
+		//finalRoadmapItemString += "</div>"
 		
 		//go and add a bunch of stuff to the timeline item in the visualization
 		dataTable.addRow([
@@ -385,13 +401,47 @@ function buildRoadmap(response) {
 		
         // Instantiate our timeline object.
         timeline = new links.Timeline(document.getElementById('timeline'));
-		google.visualization.events.addListener(timeline, 'select', onselect);
+		//google.visualization.events.addListener(timeline, 'select', onselect);
 
         // Draw our timeline with the created data and options
-        timeline.draw(dataTable, options);
+		
+		//var slidepos = $('#uilding').offset().left;
+		
+		var hidepos = $('.hide').offset().left;
+		var slidepos = $('.slide').offset().left;
+
+		var goto = ($('.slide').offset().left < slidepos) ? slidepos : hidepos;
+
+		$('.slide').css({
+			'left' : $('.slide').offset().left,
+			'position' : 'fixed',
+		}).animate({
+			'left' : goto,
+		}, function() {
+			$(this).css('position', 'static');
+		});
+
+		$('.hide').animate({
+			'opacity' : 'toggle',
+		});
+		
+        
+		
+		
+		$('#waiting').hide("slow");
+		
+		setTimeout(function(){$('.drill').fadeIn('fast');},650);
+		
+		
+		
+		timeline.draw(dataTable, options)
+		
 		$('.assignee').click(showWork)
 		
-		grabComments(pmTicketString)
+		//$('.comments').click(launchTicket)
+		$('.storyLink').click(onselect)
+		
+		//grabComments(pmTicketString)
 		
 		
 	}) //END of our ajax call grabbing all the stories
@@ -399,33 +449,83 @@ function buildRoadmap(response) {
 	
   }) //END on the ajax call to grab the comments for the epics
   
+  
+    $('#simple').click(function(){
+  
+	//$('div.detail').hide()
+	$('p.comments').hide()
+	$('div.stories').hide()
+	$('hr.divider').hide()
+	$('table.detail').hide()
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	$('div.timeline-event').addClass('sameColor')
+	$('.currentOn').removeClass('currentOn')
+	$('.horizonOn').removeClass('horizonOn')
+	$('.futureOn').removeClass('futureOn')
+	$('.drill').removeClass('selected')
+	$(this).addClass('selected')
+  
+  })
+  
+  
+  $('#summary').click(function(){
+  
+	//$('div.detail').hide()
+	$('p.comments').hide()
+	$('div.stories').hide()
+	$('hr.divider').hide()
+	$('table.detail').hide()
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	$('div.timeline-event').removeClass('sameColor')
+	$('.current').addClass('currentOn')
+	$('.horizon').addClass('horizonOn')
+	$('.future').addClass('futureOn')
+	$('.drill').removeClass('selected')
+	$(this).addClass('selected')
+  
+  }) 
+  
   $('#status').click(function(){
   
-	$('div.detail').hide()
+	//$('div.detail').hide()
+	$('p.comments').show()
+	$('div.stories').show().removeClass('hidden')
+	$('hr.divider').show()
+	$('table.detail').hide()
 	timeline.zoom(0.1)
 	timeline.zoom(-.1)
 	$('div.sameColor').removeClass('sameColor')
+	$('.current').addClass('currentOn')
+	$('.horizon').addClass('horizonOn')
+	$('.future').addClass('futureOn')
+	$('.drill').removeClass('selected')
+	$(this).addClass('selected')
   
   })
   
 
-$('#summary').click(function(){
-  
-	$('div.detail').hide()
-	timeline.zoom(0.1)
-	timeline.zoom(-.1)
-	$('div.timeline-event').addClass('sameColor')
-  
-  })  
+ 
   
   
 
 $('#detail').click(function(){
   
-	$('div.detail').show().removeClass('hidden')
+	$('div.timeline-event').removeClass('sameColor')
+	//$('div.detail').show().removeClass('hidden')
+	$('p.comments').show()//.removeClass('hidden')
+	$('div.stories').show()//.removeClass('hidden')
+	$('hr.divider').show()//.removeClass('hidden')
+	$('table.detail').show()//.removeClass('hidden')
 	//setTimeout(function(){ timeline.redraw() }, 3000);
 	//$('div#timeline').hide()
 	//setTimeout(function(){ $('div#timeline').show() }, 3000);
+	$('.current').addClass('currentOn')
+	$('.horizon').addClass('horizonOn')
+	$('.future').addClass('futureOn')
+	$('.drill').removeClass('selected')
+	$(this).addClass('selected')
 	timeline.zoom(0.1)
 	timeline.zoom(-.1)
 	
@@ -434,6 +534,10 @@ $('#detail').click(function(){
   
   
 } //END of our giant stupid ass function
+
+
+
+
 
 
 //fire this when someone clicks a timeline item

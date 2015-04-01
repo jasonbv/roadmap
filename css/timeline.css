@@ -147,9 +147,9 @@ div.timeline-groups-text {
 
 div.timeline-currenttime {
     -moz-box-sizing: border-box;
-    background-color: #ff7f6e;
+    background-color: #f19d44;
     box-sizing: border-box;
-    width: 2px;
+    width: 3px;
 }
 
 div.timeline-customtime {

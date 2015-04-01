@@ -5,6 +5,7 @@
 <script type="text/javascript" src="javascript/jquery.bpopup.min.js"></script>
 <script type="text/javascript" src="javascript/timeline.js"></script>
 <script type="text/javascript" src="javascript/timelineJason.js"></script>
+<script type="text/javascript" src="javascript/jquery-ui.js"></script>
 
 <link rel="stylesheet" type="text/css" href="css/timeline.css">
 <link rel="stylesheet" type="text/css" href="css/timelineJason.css">
@@ -12,19 +13,23 @@
 
 
 
-<title>Conversations Roadmap</title>
+<title>b:Roadmap</title>
 </head>
 
 <body>
 
 <div id='header'>
 <a target='_blank' href='https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM'>
-<img height=50 src='images/logo2.jpg' />
-<span class='jiraLink'>Conversations Roadmap</span></a>
-<a class='drill' id='summary' href='javascript:;'>summary</a><a class='drill' id='status' href='javascript:;'>status</a><a class='drill' id='detail' href='javascript:;'>detail</a>
+<span id='heading'>b<span class="hide">uilding</span><span class="slide">:Roadmap</span>
 
-<div id="timeline" style="width: 100%; height: 100%;"></div>
+<img id='waiting' height=8px src='images/bp.gif'/></a></span>
+<a class='selected drill' id='simple' href='javascript:;'>public</a>
+<a class='drill' id='summary' href='javascript:;'>status</a>
+<a class='drill' id='status' href='javascript:;'>detail</a>
+<a class='drill' id='detail' href='javascript:;'>program</a>
 </div>
+<div id="timeline" style="width: 100%; height: 100%;"></div>
+
 
 <div id="workPopup">
 </div>
