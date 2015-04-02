@@ -172,6 +172,16 @@ function buildRoadmap(response) {
 	  
 		//loop through each of the stories and push it into a big all the relevant data into a object
 		$(data.issues).each(function(issueIndex,issue){
+		
+			if ( issue.fields.assignee == null ) {
+			
+			assignee = "Not Assigned" 
+			
+			} else {
+			
+			assignee = issue.fields.assignee.displayName
+			
+			}
 
 			storyObj.push({
 				'id': issue.fields.customfield_12620,
@@ -179,7 +189,7 @@ function buildRoadmap(response) {
 				'status': issue.fields.status.name.replaceAll(" ","_"),
 				'statusColor': setColor(issue.fields.status.name.replaceAll(" ","_")),
 				'lastupdated': issue.fields.updated,
-				'assigned': issue.fields.assignee.displayName,
+				'assigned': assignee,
 				'summary': issue.fields.summary
 			});
 			
@@ -352,6 +362,7 @@ function buildRoadmap(response) {
 		
 		})
   
+		finalRoadmapItemString += "<hr class='hidden divider' />"
 		finalRoadmapItemString += "<div class='hidden stories'>" + roadmapItemString + "</div>"
 		//finalRoadmapItemString += "</div>"
 		
@@ -392,8 +403,9 @@ function buildRoadmap(response) {
 			},
 			
 		editable: false,
-		eventMargin : 2,
-		eventMarginAxis : 0,
+		eventMargin : 5,
+		eventMarginAxis : 5,
+		//showNavigation : true,
 		axisOnTop : true
 
 		}; // END - specify options
@@ -401,6 +413,8 @@ function buildRoadmap(response) {
 		
         // Instantiate our timeline object.
         timeline = new links.Timeline(document.getElementById('timeline'));
+		timeline.zoom(0.1)
+		timeline.zoom(-.1)
 		//google.visualization.events.addListener(timeline, 'select', onselect);
 
         // Draw our timeline with the created data and options
@@ -457,14 +471,16 @@ function buildRoadmap(response) {
 	$('div.stories').hide()
 	$('hr.divider').hide()
 	$('table.detail').hide()
-	timeline.zoom(0.1)
-	timeline.zoom(-.1)
+	
 	$('div.timeline-event').addClass('sameColor')
 	$('.currentOn').removeClass('currentOn')
 	$('.horizonOn').removeClass('horizonOn')
 	$('.futureOn').removeClass('futureOn')
 	$('.drill').removeClass('selected')
 	$(this).addClass('selected')
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	timeline.checkResize()
   
   })
   
@@ -476,14 +492,15 @@ function buildRoadmap(response) {
 	$('div.stories').hide()
 	$('hr.divider').hide()
 	$('table.detail').hide()
-	timeline.zoom(0.1)
-	timeline.zoom(-.1)
 	$('div.timeline-event').removeClass('sameColor')
 	$('.current').addClass('currentOn')
 	$('.horizon').addClass('horizonOn')
 	$('.future').addClass('futureOn')
 	$('.drill').removeClass('selected')
 	$(this).addClass('selected')
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	timeline.checkResize()
   
   }) 
   
@@ -494,14 +511,16 @@ function buildRoadmap(response) {
 	$('div.stories').show().removeClass('hidden')
 	$('hr.divider').show()
 	$('table.detail').hide()
-	timeline.zoom(0.1)
-	timeline.zoom(-.1)
+	
 	$('div.sameColor').removeClass('sameColor')
-	$('.current').addClass('currentOn')
-	$('.horizon').addClass('horizonOn')
-	$('.future').addClass('futureOn')
+	$('.current').removeClass('currentOn')
+	$('.horizon').removeClass('horizonOn')
+	$('.future').removeClass('futureOn')
 	$('.drill').removeClass('selected')
 	$(this).addClass('selected')
+	timeline.zoom(0.1)
+	timeline.zoom(-.1)
+	timeline.checkResize()
   
   })
   
@@ -521,13 +540,14 @@ $('#detail').click(function(){
 	//setTimeout(function(){ timeline.redraw() }, 3000);
 	//$('div#timeline').hide()
 	//setTimeout(function(){ $('div#timeline').show() }, 3000);
-	$('.current').addClass('currentOn')
-	$('.horizon').addClass('horizonOn')
-	$('.future').addClass('futureOn')
+	$('.current').removeClass('currentOn')
+	$('.horizon').removeClass('horizonOn')
+	$('.future').removeClass('futureOn')
 	$('.drill').removeClass('selected')
 	$(this).addClass('selected')
-	timeline.zoom(0.1)
-	timeline.zoom(-.1)
+	timeline.zoom(0.5)
+	timeline.zoom(-.5)
+	timeline.checkResize()
 	
   
   })  
@@ -595,7 +615,8 @@ function onselect() {
 	  storyItemsDetail.show()
 	  
 	  timeline.zoom(0.1)
-		timeline.zoom(-.1)
+	timeline.zoom(-.1)
+	timeline.checkResize()
 	  
 	  
     }
