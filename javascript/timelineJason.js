@@ -40,10 +40,13 @@ google.setOnLoadCallback(grabRoadmapData);
 
 //
 function grabRoadmapData() {
+
+	var query = new google.visualization.Query(
+      'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit#gid=0');
 	 
 	//go and grab the raw data from the roadmap spreadsheet
-	var query = new google.visualization.Query(
-      'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit?range=A2:Z' + numOfRoadmapItems + '#gid=305973899');
+	//var query = new google.visualization.Query(
+     // 'https://docs.google.com/a/bazaarvoice.com/spreadsheets/d/1M5CTvbZ_MZa5P-ieFrBCmy8T-nQ0VxDT123DhL8w4gM/edit?range=A2:Z' + numOfRoadmapItems + '#gid=305973899');
 	query.send(buildRoadmap);
   
 }
