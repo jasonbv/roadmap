@@ -393,18 +393,22 @@ function buildRoadmap(response) {
 	//-----------------------------------------------------------------------------
 	//-----------------------------------------------------------------------------
   
+	var startDate = new Date(2015, 5, 1);
   
 		// specify options
 		var options = {
 
 			groupsOrder: function (a, b) {
 
-				order = [ 'R&R','SEO','Q&A','Content','GSR','Tech' ];
+				order = [ 'R&R','SEO','Spotlights','Q&A','Content','GSR','Tech' ];
 				console.log(a.content + " - " + b.content)
 				return order.indexOf(a.content) - order.indexOf(b.content)
 				
 			},
 			
+		//start : new Date(2015, 5, 1),
+		"min": new Date(2015, 3, 1),                // lower limit of visible range
+        "max": new Date(2016, 5, 1), 
 		editable: false,
 		eventMargin : 5,
 		eventMarginAxis : 5,
