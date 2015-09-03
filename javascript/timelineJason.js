@@ -16,6 +16,8 @@ var dataEngLead = 10
 var dataProgMgr = 11
 var dataDocLead = 12
 var dataProgJira = 13
+var dataConversations = 14
+var dataPRR = 15
 
 var pmTicketString = ""
 
@@ -88,11 +90,14 @@ function buildRoadmap(response) {
 	var ticketArray = []
 	var pmTicketArray = []
 
-	var roadmapItems = $(data.Lf)
+	var roadmapItems = $(data.Gf)
 	
 	//Loop through each of the roadmap items
 	//--------------------------------------
 	roadmapItems.each(function(index2,row2){
+	
+		console.log(index2)
+		console.log(row2.c[dataRoadmapItemIndex].v)
 	
 		//if we have linked to a JIRA ticket in the spreadsheet, push it into the array for our API call
 		if ( row2.c[dataJira].v.match("^PM-") ) { ticketArray.push(row2.c[dataJira].v) }
@@ -117,7 +122,7 @@ function buildRoadmap(response) {
 	
 	
 	//========================================
-	pmTicketString2 = "POPS-203"
+	//pmTicketString2 = "POPS-203"
 	console.log(pmTicketString)
 	var commentQueryURL = "https://bv-roadmap.appspot.com/getTickets/?ticket=" + pmTicketString
 	$.getJSON( commentQueryURL, function( epicData ) {
@@ -217,7 +222,7 @@ function buildRoadmap(response) {
 	//-----------------------------------------------------------------------------
 	roadmapItems.each(function(index,row){
   
-	
+	console.log(index)
 		
 		//grab the start date of the roadmap item
 		var startDate = new Date(row.c[dataStartDate].f)
@@ -260,6 +265,15 @@ function buildRoadmap(response) {
 	
 		//also include the JIRA ticket number so we can grab it when we click it
 		classString += " " + row.c[dataJira].v
+		
+		
+		//set prr
+		switch(row.c[dataPRR].v) {
+			case "Yes":
+				classString += " prr"
+				break;
+			
+		} //END - set the color
 	
 	
 	
